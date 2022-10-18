@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "std/": "https://deno.land/std@0.151.0/",
+    "oak/": "https://deno.land/x/oak@v10.6.0/",
+    "cors/": "https://deno.land/x/cors@v1.2.2/"
+  }
+}
