@@ -20,6 +20,7 @@ const fetchRecursive = async (base: string, project: string, id: string): Promis
   if (id.startsWith("0")) return [];
 
   const { count, lines } = await fetchFromScrapbox(`${base}${id}`, project);
+
   if (count < 100) return lines;
 
   return [
@@ -36,13 +37,14 @@ const fetchRecursive = async (base: string, project: string, id: string): Promis
   ];
 };
 
-const extractNicovideoId = (line: string) => /sm\d+/.exec(line) || [];
+const extractNicovideoId = (line: string) => /[sn]m\d+/.exec(line) || [];
 
 const fetchAllNicovideoId = async (project: string) =>
   [
     ...new Set(
       [
         ...await fetchRecursive("https://www.nicovideo.jp/watch/sm", project, ""),
+        ...await fetchRecursive("https://www.nicovideo.jp/watch/nm", project, ""),
         ...await fetchRecursive("https://nico.ms/sm", project, ""),
       ]
         .map((line) => extractNicovideoId(line))
