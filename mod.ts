@@ -1,4 +1,5 @@
 import { Application, Router } from "oak/mod.ts";
+import nil from "./nil.ts";
 
 const app = new Application();
 const router = new Router();
@@ -35,16 +36,24 @@ const fetchRecursive = async (base: string, project: string, id: string): Promis
   ];
 };
 
-export const fetchAllNicovideoId = async (project: string) => [
-  ...await fetchRecursive("https://www.nicovideo.jp/watch/sm", project, ""),
-  ...await fetchRecursive("https://nico.ms/sm", project, ""),
-];
+const extractNicovideoId = (line: string) => /sm\d+/.exec(line) || [];
+
+const fetchAllNicovideoId = async (project: string) =>
+  [
+    ...new Set(
+      [
+        ...await fetchRecursive("https://www.nicovideo.jp/watch/sm", project, ""),
+        ...await fetchRecursive("https://nico.ms/sm", project, ""),
+      ]
+        .map((line) => extractNicovideoId(line))
+        .flat(),
+    ),
+  ]
+    .filter((v) => !nil.includes(v));
 
 router.get("/:project", async ({ params, response }) => {
   const project = params.project;
-
   const res = await fetchAllNicovideoId(project);
-  console.dir(res);
   response.body = JSON.stringify(res);
 });
 app.use(router.routes());
